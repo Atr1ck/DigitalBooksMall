@@ -6,18 +6,22 @@ import {
 } from "react-router-dom"
 import './index.css'
 import Home from './Home.tsx'
+import Cart from './Cart.tsx'
+import Buy from './Buy.tsx'
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Home />,
-    children: [
-      {
-        path: "/cart",
-        element: <p>This is a cart</p>
-      }
-    ]
   },
+  {
+    path: "/cart",
+    element: <Cart />,
+  },
+  {
+    path: "/buy",
+    element: <Buy />,
+  }
 ]);
 
 createRoot(document.getElementById('root')!).render(

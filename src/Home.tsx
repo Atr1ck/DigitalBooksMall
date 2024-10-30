@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { create } from 'zustand'
+import { useNavigate } from 'react-router-dom'
 import { Carousel } from 'antd'
 import {
   useQuery,
@@ -7,7 +8,7 @@ import {
   QueryClientProvider,
 } from '@tanstack/react-query'
 import './Home.css'
-import Cart from './Cart'
+import { CartInNavi } from './Cart'
 import { useCartStore } from './Cart'
 
 interface LoginStatusProps {
@@ -23,6 +24,13 @@ export interface BookProps {
   purchased: boolean
 }
 
+export const usePageVisible = create((set) => ({
+  isHomeVisible: true,
+  isCartpageVisible: false,
+  setHomeVisible: (visible: boolean) => set({isHomeVisible: visible}),
+  setCartpageVisible: (visible: boolean) => set({isHomeVisible: visible})
+}))
+
 const queryClient = new QueryClient()
 
 function LoginStatus({ isLogin, name } : LoginStatusProps) {
@@ -32,21 +40,43 @@ function LoginStatus({ isLogin, name } : LoginStatusProps) {
   return <div>Please log in.</div>;
 }
 
-function Homepage() {
+function Homepage({ setHomeVisible } : { setHomeVisible: any }) {
+  const navigate = useNavigate();
+
+  const handleRedirect = ()=> {
+    setHomeVisible(true);
+    setTimeout(() => navigate('/'), 100);
+  }
   return (
-    <button className='absolute left-1/3 text-white text-xl top-1 hover:bg-gray-700 hover:opacity-80 rounded-lg w-20 h-8'>
+    <button onClick={handleRedirect} className='absolute left-1/3 text-white text-xl top-1 hover:bg-gray-700 hover:opacity-80 rounded-lg w-20 h-8'>
     首页
     </button>
   )
 }
 
-function TopBar() {
+function Cartpage({ setHomeVisible } : {setHomeVisible: any}) {
+  const navigate = useNavigate();
+
+  const handleRedirect = () => {
+    setHomeVisible(false);
+    setTimeout(() => navigate('/cart'), 100);
+  };
+
+  return (
+      <button onClick={handleRedirect} className='absolute left-1/2 transform -translate-x-1/2 text-white text-xl top-1 hover:bg-gray-700 hover:opacity-80 rounded-lg w-24 h-8'>
+        购物详情
+      </button>
+  )
+}
+
+export function TopBar({ setHomeVisible } : {setHomeVisible: any}) {
   return(
     <>
     <div className="fixed bg-gray-950 w-full h-12 rounded-2xl border-4 border-gray-950 z-50 top-0">
-      <Homepage />
+      <Homepage setHomeVisible={setHomeVisible}/>
+      <Cartpage setHomeVisible={setHomeVisible}/>
       <LoginStatus isLogin={true} name={"Alice"} />
-      <Cart />
+      <CartInNavi />
     </div>
     </>
   )
@@ -71,7 +101,7 @@ function Book({ book } : { book: BookProps }) {
         <p className='pt-4 pb-4'>{book.title}</p>
         <p className='pt-4 pb-4'>{book.author}</p>
         <p>{book.price}</p>
-        <button disabled={book.purchased} onClick={() => handleAdd()} className='hover:opacity-70 w-32 h-10 bg-gray-700 absolute bottom-4 left-1/2 h- transform -translate-x-1/2 pl-1 pr-1 border-2 border-gray-800 rounded-md hover:border-white'>
+        <button disabled={book.purchased} onClick={() => handleAdd()} className='shadow-inner hover:opacity-70 w-32 h-10 bg-gray-700 absolute bottom-4 left-1/2 h- transform -translate-x-1/2 pl-1 pr-1 border-2 border-gray-800 rounded-md hover:border-white'>
         {book.purchased ? "Purchased" : "Add to chart"}
         </button>
     </div>
@@ -102,7 +132,7 @@ function BookList() {
   const bookGroups = chunkArray(data, 5);
 
   return(
-    <div>
+    <div >
       <h2 className='text-white text-4xl text-center absolute top-12 left-1/2 transform -translate-x-1/2 m-4'>
         BookList
       </h2>
@@ -124,11 +154,19 @@ function BookList() {
   )
 }
 
-export default function App() {
+export default function Home() {
+  const isHomeVisible = usePageVisible((state : any) => state.isHomeVisible)
+  const setHomeVisible = usePageVisible((state : any) => state.setHomeVisible)
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <TopBar />
-      <BookList />
-    </QueryClientProvider>
+    <>
+    <div>
+      <QueryClientProvider client={queryClient}>
+      <TopBar setHomeVisible={setHomeVisible}/>
+      {isHomeVisible && 
+      <BookList />}
+      </QueryClientProvider>
+    </div>
+    </>
   )
 }
