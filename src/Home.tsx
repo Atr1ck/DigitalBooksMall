@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { create } from 'zustand'
 import { useNavigate } from 'react-router-dom'
 import { Carousel } from 'antd'
@@ -27,8 +26,10 @@ export interface BookProps {
 export const usePageVisible = create((set) => ({
   isHomeVisible: true,
   isCartpageVisible: false,
+  isBuypageVisible: false,
   setHomeVisible: (visible: boolean) => set({isHomeVisible: visible}),
-  setCartpageVisible: (visible: boolean) => set({isHomeVisible: visible})
+  setCartpageVisible: (visible: boolean) => set({isCartpageVisible: visible}),
+  setBuypageVisible: (visible: boolean) => set({isBuypageVisible: visible}),
 }))
 
 const queryClient = new QueryClient()
@@ -40,13 +41,16 @@ function LoginStatus({ isLogin, name } : LoginStatusProps) {
   return <div>Please log in.</div>;
 }
 
-function Homepage({ setHomeVisible } : { setHomeVisible: any }) {
+function Homepage({ setHomeVisible, setCartpageVisible, setBuypageVisible } : {setHomeVisible: Function, setCartpageVisible: Function, setBuypageVisible: Function}) {
   const navigate = useNavigate();
 
-  const handleRedirect = ()=> {
+  const handleRedirect = () => {
     setHomeVisible(true);
+    setBuypageVisible(false);
+    setCartpageVisible(false);
     setTimeout(() => navigate('/'), 100);
   }
+
   return (
     <button onClick={handleRedirect} className='absolute left-1/3 text-white text-xl top-1 hover:bg-gray-700 hover:opacity-80 rounded-lg w-20 h-8'>
     首页
@@ -54,10 +58,12 @@ function Homepage({ setHomeVisible } : { setHomeVisible: any }) {
   )
 }
 
-function Cartpage({ setHomeVisible } : {setHomeVisible: any}) {
+function Cartpage({ setHomeVisible, setCartpageVisible, setBuypageVisible } : {setHomeVisible: Function, setCartpageVisible: Function, setBuypageVisible: Function}) {
   const navigate = useNavigate();
 
   const handleRedirect = () => {
+    setCartpageVisible(true);
+    setBuypageVisible(false);
     setHomeVisible(false);
     setTimeout(() => navigate('/cart'), 100);
   };
@@ -69,12 +75,12 @@ function Cartpage({ setHomeVisible } : {setHomeVisible: any}) {
   )
 }
 
-export function TopBar({ setHomeVisible } : {setHomeVisible: any}) {
+export function TopBar({ setHomeVisible, setCartpageVisible, setBuypageVisible } : {setHomeVisible: Function, setCartpageVisible: Function, setBuypageVisible: Function}) {
   return(
     <>
     <div className="fixed bg-gray-950 w-full h-12 rounded-2xl border-4 border-gray-950 z-50 top-0">
-      <Homepage setHomeVisible={setHomeVisible}/>
-      <Cartpage setHomeVisible={setHomeVisible}/>
+      <Homepage setHomeVisible={setHomeVisible} setBuypageVisible={setBuypageVisible} setCartpageVisible={setCartpageVisible}/>
+      <Cartpage setHomeVisible={setHomeVisible} setBuypageVisible={setBuypageVisible} setCartpageVisible={setCartpageVisible}/>
       <LoginStatus isLogin={true} name={"Alice"} />
       <CartInNavi />
     </div>
@@ -155,14 +161,16 @@ function BookList() {
 }
 
 export default function Home() {
-  const isHomeVisible = usePageVisible((state : any) => state.isHomeVisible)
-  const setHomeVisible = usePageVisible((state : any) => state.setHomeVisible)
+  const isHomeVisible = usePageVisible((state : any) => state.isHomeVisible);
+  const setHomeVisible = usePageVisible((state : any) => state.setHomeVisible);
+  const setBuypageVisible = usePageVisible((state: any) => state.setBuypageVisible);
+  const setCartpageVisible = usePageVisible((state: any) => state.setCartpageVisible);
 
   return (
     <>
     <div>
       <QueryClientProvider client={queryClient}>
-      <TopBar setHomeVisible={setHomeVisible}/>
+      <TopBar setHomeVisible={setHomeVisible} setBuypageVisible={setBuypageVisible} setCartpageVisible={setCartpageVisible}/>
       {isHomeVisible && 
       <BookList />}
       </QueryClientProvider>
