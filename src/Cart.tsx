@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { BookProps } from './Home'
 import { ShoppingCartOutlined} from '@ant-design/icons'
 import { useState } from 'react'
-import { TopBar, usePageVisible } from './Home'
+import { TopBar } from './Home'
 import { useNavigate } from 'react-router-dom'
 
 export const useCartStore = create((set) => ({
@@ -63,15 +63,9 @@ function Cartlist(){
   const books = useCartStore((state: any) => state.books);
   const removebook = useCartStore((state: any) => state.removebook);
   const setTotalprice = useCartStore((state: any) => state.setTotalprice);
-  const setHomeVisible = usePageVisible((state : any) => state.setHomeVisible);
-  const setBuypageVisible = usePageVisible((state: any) => state.setBuypageVisible);
-  const setCartpageVisible = usePageVisible((state: any) => state.setCartpageVisible);
   const navigate = useNavigate();
 
   const handleRedirect = () => {
-    setCartpageVisible(false);
-    setBuypageVisible(true);
-    setHomeVisible(false);
     setTimeout(() => navigate('/buy'), 100);
   };
 
@@ -120,15 +114,10 @@ function Cartlist(){
 }
 
 export default function Cart(){
-  const isCartpageVisible = usePageVisible((state: any) => state.isCartpageVisible);
-  const setHomeVisible = usePageVisible((state : any) => state.setHomeVisible);
-  const setBuypageVisible = usePageVisible((state: any) => state.setBuypageVisible);
-  const setCartpageVisible = usePageVisible((state: any) => state.setCartpageVisible);
-
   return (
     <div>
-      <TopBar setHomeVisible={setHomeVisible} setBuypageVisible={setBuypageVisible} setCartpageVisible={setCartpageVisible}/>
-      {isCartpageVisible && <Cartlist />}
+      <TopBar />
+      <Cartlist />
     </div>
   )
 }

@@ -1,8 +1,9 @@
+import { useCartStore } from "./Cart";
 import { TopBar } from "./Home";
-import { usePageVisible } from "./Home";
 import { useState } from "react";
 
-function Information() {
+function Information() {3
+  const totalprice = useCartStore((state: any) => state.totalprice);
   const [name, setName] = useState('');
   const [telephone, setTelephone] = useState('');
 
@@ -36,9 +37,12 @@ function Information() {
               placeholder="Enter your telephone number"
             />
           </div>
+          <div className="text-white text-center text-lg mt-4">
+            Total Price: $ {totalprice}
+          </div>
           <button 
             type="submit" 
-            className="mt-4 w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-500"
+            className="mt-4 w-full py-2 bg-gray-700 text-white rounded hover:bg-gray-800 border-2 border-gray-700 hover:border-gray-600"
           >
             Submit
           </button>
@@ -49,13 +53,10 @@ function Information() {
 }
 
 export default function Buy(){
-    const setHomeVisible = usePageVisible((state : any) => state.setHomeVisible);
-    const setBuypageVisible = usePageVisible((state: any) => state.setBuypageVisible);
-    const setCartpageVisible = usePageVisible((state: any) => state.setCartpageVisible);
 
     return (
       <div>
-        <TopBar setHomeVisible={setHomeVisible} setBuypageVisible={setBuypageVisible} setCartpageVisible={setCartpageVisible}/>
+        <TopBar />
         <Information></Information>
       </div>
     )
