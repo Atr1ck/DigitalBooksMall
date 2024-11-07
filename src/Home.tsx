@@ -1,35 +1,15 @@
-import { create } from 'zustand'
 import { useNavigate } from 'react-router-dom'
 import { Carousel } from 'antd'
 import {
-  useQuery,
   QueryClient,
   QueryClientProvider,
+  useQuery,
 } from '@tanstack/react-query'
 import './Home.css'
 import { CartInNavi } from './Cart'
-import { useCartStore } from './Cart'
+import { BookProps, LoginStatusProps, useCartStore } from './propsandstate'
 
-interface LoginStatusProps {
-  isLogin: boolean;
-  name: string;
-}
-
-export interface BookProps {
-  id: number
-  title: string
-  author: string
-  price: number
-  purchased: boolean
-}
-
-export const useUserStatus = create((set) => ({
-  username: "",
-  userpassword: "",
-
-}))
-
-const queryClient = new QueryClient()
+const queryClient = new QueryClient();
 
 function LoginStatus({ isLogin, name } : LoginStatusProps) {
   if (isLogin) {
@@ -52,6 +32,19 @@ function Homepage() {
   )
 }
 
+function AllBookpage() {
+  const navigate = useNavigate();
+  const handleRedirect = () => {
+    setTimeout(() => navigate('/book/1'), 100);
+  }
+  
+  return (
+    <button onClick={handleRedirect} className='absolute left-2/3 transform -translate-x-1/2 text-white text-xl top-1 hover:bg-gray-700 hover:opacity-80 rounded-lg w-24 h-8'>
+        书籍详情
+      </button>
+  )
+}
+
 function Cartpage() {
   const navigate = useNavigate();
 
@@ -69,9 +62,10 @@ function Cartpage() {
 export function TopBar() {
   return(
     <>
-    <div className="fixed bg-gray-950 w-full h-12 rounded-2xl border-4 border-gray-950 z-50 top-0">
+    <div className="fixed bg-gray-950 w-full h-12 rounded-lg border-4 border-gray-950 z-50 top-0">
       <Homepage />
       <Cartpage />
+      <AllBookpage />
       <LoginStatus isLogin={true} name={"Alice"} />
       <CartInNavi />
     </div>
@@ -79,7 +73,7 @@ export function TopBar() {
   )
 }
 
-function Book({ book } : { book: BookProps }) {
+export function Book({ book, className } : { book: BookProps ; className: string}) {
   const addbook = useCartStore((state: any) => state.addbook);
   const books = useCartStore((state: any) => state.books);
 
@@ -93,12 +87,12 @@ function Book({ book } : { book: BookProps }) {
   }
 
   return(
-    <div className='bg-gray-800 relative w-64 h-80 rounded-lg border-4 border-gray-800 mx-4 my-3 p-5 text-center text-yellow-50'>
+    <div className={className}>
         <p>{book.id} </p>
         <p className='pt-4 pb-4'>{book.title}</p>
         <p className='pt-4 pb-4'>{book.author}</p>
-        <p>{book.price}</p>
-        <button disabled={book.purchased} onClick={() => handleAdd()} className='shadow-inner hover:opacity-70 w-32 h-10 bg-gray-700 absolute bottom-4 left-1/2 h- transform -translate-x-1/2 pl-1 pr-1 border-2 border-gray-800 rounded-md hover:border-white'>
+        <p>${book.price}</p>
+        <button disabled={book.purchased} onClick={() => handleAdd()} className='shadow-inner hover:opacity-70 w-32 h-10 mt-12 bg-gray-700 pl-1 pr-1 border-2 border-gray-800 rounded-md hover:border-white'>
         {book.purchased ? "Purchased" : "Add to chart"}
         </button>
     </div>
@@ -116,6 +110,7 @@ function BookList() {
     }
   });
 
+
   if (isPending) return 'Loading...';
 
   if (isError) return 'An error has occurred: ' + error.message;
@@ -125,7 +120,7 @@ function BookList() {
       if (i % size === 0) acc.push(arr.slice(i, i + size));
       return acc;
     }, [] as BookProps[][]);
-
+  
   const bookGroups = chunkArray(data, 5);
 
   return(
@@ -141,6 +136,7 @@ function BookList() {
               <Book
                 book={book}
                 key={book.id}
+                className='bg-gray-800 relative w-64 h-80 rounded-lg border-4 border-gray-800 mx-4 my-3 p-5 text-center text-yellow-50'
               />
             ))}
           </div>
@@ -152,16 +148,12 @@ function BookList() {
 }
 
 export default function Home() {
-
-
   return (
     <>
-    <div>
-      <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
       <TopBar />
       <BookList />
-      </QueryClientProvider>
-    </div>
+    </QueryClientProvider>
     </>
   )
 }

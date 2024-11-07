@@ -1,16 +1,40 @@
-import { useCartStore } from "./Cart";
 import { TopBar } from "./Home";
 import { useState } from "react";
+import { useCartStore } from "./propsandstate";
 
 function Information() {3
   const totalprice = useCartStore((state: any) => state.totalprice);
   const [name, setName] = useState('');
   const [telephone, setTelephone] = useState('');
 
-  const handleSubmit = (e: { preventDefault: () => void; }) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Name:", name);
-    console.log("Telephone:", telephone);
+
+    const data = {
+      name,
+      telephone,
+      totalprice
+    };
+
+    try {
+      const response = await fetch('http://localhost:3000/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        alert('Form submitted successfully: ' + result.message);
+      } else {
+        alert('Failed to submit the form.');
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      alert('Error submitting form.');
+    }
   };
 
   return (

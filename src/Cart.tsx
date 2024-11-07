@@ -1,26 +1,8 @@
-import { create } from 'zustand'
-import { BookProps } from './Home'
 import { ShoppingCartOutlined} from '@ant-design/icons'
 import { useState } from 'react'
 import { TopBar } from './Home'
-import { useNavigate } from 'react-router-dom'
-
-export const useCartStore = create((set) => ({
-    counts: 0,
-    books: [] as BookProps[],
-    totalprice: 0,
-    addbook: (book: BookProps) => set((state: { counts: number; books: BookProps[] }) => ({
-        counts: state.counts + 1,
-        books: [...state.books, book],
-    })),
-    removebook: (book: BookProps) => set((state: {counts: number; books: BookProps[]}) => ({
-        counts: state.counts - 1,
-        books: state.books.filter((item) => item.id !== book.id)
-    })),
-    setTotalprice: (totalprice: number) => set(() => ({
-      totalprice: totalprice
-    }))
-}))
+import { Link, useNavigate } from 'react-router-dom'
+import { useCartStore, BookProps } from './propsandstate'
 
 function ShowCart({ isShow }: { isShow: boolean }) {
     const books = useCartStore((state: any) => state.books);
@@ -35,7 +17,9 @@ function ShowCart({ isShow }: { isShow: boolean }) {
         {books.length > 0 ? (
           books.map((book: BookProps, index: number) => (
             <button key={index} className='w-60 h-auto m-1 pl-2 pt-1 pb-1 border-2 text-white rounded-lg hover:opacity-80'>
+              <Link to={`/book/${book.id}`}>
               {book.title}
+              </Link>
             </button>
           ))
         ) : (
@@ -51,7 +35,7 @@ export function CartInNavi(){
   return (
     <div>
       <ShoppingCartOutlined
-        className="absolute right-2 top-1 text-white text-2xl hover:bg-blue-200 rounded-full p-1"
+        className="absolute right-2 top-1 text-white text-2xl hover:bg-gray-600 rounded-full p-1"
         onClick={() => setIsShow(!isShow)}
       />
       <ShowCart isShow={isShow} />
