@@ -1,28 +1,31 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Carousel } from 'antd'
 import {
   QueryClient,
   QueryClientProvider,
   useQuery,
 } from '@tanstack/react-query'
-import './Home.css'
 import { CartInNavi } from './Cart'
 import { BookProps, LoginStatusProps, useCartStore } from './propsandstate'
 
-const queryClient = new QueryClient();
 
 function LoginStatus({ isLogin, name } : LoginStatusProps) {
+  const navigate = useNavigate();
+
   if (isLogin) {
-    return <div className='absolute right-3 top-2 w-24 h-6 text-center text-white font-bold mr-4'>Hi, {name}</div>;
+    return <div className='absolute right-3 top-2 w-24 h-6 text-center text-white font-bold mr-4 hover:text-gray-300 transition-all duration-300'>
+      <p onClick={() => navigate(`/${name}/info`)}>Hi, {name}</p>
+    </div>;
   }
   return <div>Please log in.</div>;
 }
 
 function Homepage() {
+  const { user } = useParams<{ user: string }>();
   const navigate = useNavigate();
 
   const handleRedirect = () => {
-    setTimeout(() => navigate('/'), 100);
+    setTimeout(() => navigate(`/${user}/home`), 100);
   }
 
   return (
@@ -33,9 +36,10 @@ function Homepage() {
 }
 
 function AllBookpage() {
+  const { user } = useParams<{ user: string }>();
   const navigate = useNavigate();
   const handleRedirect = () => {
-    setTimeout(() => navigate('/book/1'), 100);
+    setTimeout(() => navigate(`/${user}/book/`), 100);
   }
   
   return (
@@ -46,10 +50,11 @@ function AllBookpage() {
 }
 
 function Cartpage() {
+  const { user } = useParams<{ user: string }>();
   const navigate = useNavigate();
 
   const handleRedirect = () => {
-    setTimeout(() => navigate('/cart'), 100);
+    setTimeout(() => navigate(`/${user}/cart`), 100);
   };
 
   return (
@@ -60,13 +65,14 @@ function Cartpage() {
 }
 
 export function TopBar() {
+  const { user } = useParams<{ user: string }>();
   return(
     <>
     <div className="fixed bg-gray-950 w-full h-12 rounded-lg border-4 border-gray-950 z-50 top-0">
       <Homepage />
       <Cartpage />
       <AllBookpage />
-      <LoginStatus isLogin={true} name={"Alice"} />
+      <LoginStatus isLogin={true} name={user} />
       <CartInNavi />
     </div>
     </>
@@ -83,6 +89,7 @@ export function Book({ book, className } : { book: BookProps ; className: string
     }
     else{
       addbook(book)
+      console.log(book);
     }
   }
 
@@ -100,11 +107,12 @@ export function Book({ book, className } : { book: BookProps ; className: string
 }
 
 function BookList() {
+  const { user } = useParams<{ user: string }>();
   const { isPending, isError, data, error } = useQuery({
     queryKey: ['books'],
     queryFn: async () => {
       const response = await fetch(
-        'http://localhost:3000/books',
+        `http://localhost:5000/${user}/books`,
       )
       return await response.json()
     }
@@ -150,10 +158,8 @@ function BookList() {
 export default function Home() {
   return (
     <>
-    <QueryClientProvider client={queryClient}>
       <TopBar />
       <BookList />
-    </QueryClientProvider>
     </>
   )
 }

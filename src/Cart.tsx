@@ -1,10 +1,11 @@
 import { ShoppingCartOutlined} from '@ant-design/icons'
 import { useState } from 'react'
 import { TopBar } from './Home'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useCartStore, BookProps } from './propsandstate'
 
 function ShowCart({ isShow }: { isShow: boolean }) {
+    const { user } = useParams<{ user: string }>();
     const books = useCartStore((state: any) => state.books);
   
     return (
@@ -17,7 +18,7 @@ function ShowCart({ isShow }: { isShow: boolean }) {
         {books.length > 0 ? (
           books.map((book: BookProps, index: number) => (
             <button key={index} className='w-60 h-auto m-1 pl-2 pt-1 pb-1 border-2 text-white rounded-lg hover:opacity-80'>
-              <Link to={`/book/${book.id}`}>
+              <Link to={`/${user}/book/${book.id}`}>
               {book.title}
               </Link>
             </button>
@@ -44,13 +45,14 @@ export function CartInNavi(){
 }
 
 function Cartlist(){
+  const { user } = useParams<{ user: string }>();
   const books = useCartStore((state: any) => state.books);
   const removebook = useCartStore((state: any) => state.removebook);
   const setTotalprice = useCartStore((state: any) => state.setTotalprice);
   const navigate = useNavigate();
 
   const handleRedirect = () => {
-    setTimeout(() => navigate('/buy'), 100);
+    setTimeout(() => navigate(`/${user}/buy`), 100);
   };
 
   const totalPrice = books.reduce((acc: number, book: BookProps) => acc + book.price, 0).toFixed(2);
